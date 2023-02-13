@@ -20,7 +20,6 @@ public:
     : model_(model), prompt_(prompt) {}
 
   std::string MakeRequest() {
-    // Set the API endpoint based on the selected model
     std::string endpoint;
     switch (model_) {
       case GPT3:
@@ -42,29 +41,18 @@ public:
         return "Error: Invalid model";
     }
 
-    // Initialize cURL and set the API endpoint
     CURL* curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL, endpoint.c_str());
-
-    // Set the request type to POST
     curl_easy_setopt(curl, CURLOPT_POST, 1L);
-
-    // Set the request data
     std::string data = "{\"prompt\":\"" + prompt_ + "\"}";
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
-
-    // Set the response buffer
     std::string response;
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &WriteCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-
-    // Make the request and check for errors
     CURLcode res = curl_easy_perform(curl);
     if (res != CURLE_OK) {
       return "Error: " + std::string(curl_easy_strerror(res));
     }
-
-    // Clean up cURL
     curl_easy_cleanup(curl);
 
     return response;
